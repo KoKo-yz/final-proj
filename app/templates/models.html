@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance - Jordan Forest Fire Prediction{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="hero-section bg-gradient-dark text-white py-4">
+    <div class="container">
+        <h1 class="display-6 fw-bold mb-2">
+            <i class="bi bi-cpu me-2"></i>
+            ML Model Performance
+        </h1>
+        <p class="lead mb-0">Comparison of machine learning models for fire prediction</p>
+    </div>
+</section>
+
+<!-- Model Comparison Cards -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4" id="model-cards">
+            <!-- Cards will be populated by JS -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2">Loading model metrics...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Performance Comparison Chart -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="card shadow-sm reveal">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Performance Comparison</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chart-performance" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Importance -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100 reveal">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-sort-down me-2"></i>Feature Importance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chart-features"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100 reveal">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>How Prediction Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">The Prediction Process</h6>
+                        <ol>
+                            <li class="mb-2">
+                                <strong>Data Collection</strong><br>
+                                <small class="text-muted">Historical fire incidents (120,000+ records from 2018-2025)</small>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Feature Engineering</strong><br>
+                                <small class="text-muted">Extract temporal, spatial, and environmental features</small>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Model Training</strong><br>
+                                <small class="text-muted">Train multiple ML algorithms on labeled data</small>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Ensemble Prediction</strong><br>
+                                <small class="text-muted">Combine model outputs for more accurate results</small>
+                            </li>
+                        </ol>
+                        
+                        <hr>
+                        
+                        <h6 class="fw-bold">Models Used</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="bi bi-tree text-success me-2"></i>
+                                <strong>Random Forest</strong> - Ensemble of decision trees
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-graph-up text-primary me-2"></i>
+                                <strong>XGBoost</strong> - Gradient boosting (typically highest accuracy)
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-bullseye text-danger me-2"></i>
+                                <strong>SVM</strong> - Support Vector Machine
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-diagram-3 text-warning me-2"></i>
+                                <strong>Neural Network</strong> - Deep learning approach
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROC Curve (Placeholder) -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="card shadow-sm reveal">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>ROC Curve Comparison</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chart-roc" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/models.js"></script>
+{% endblock %}

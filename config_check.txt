@@ -1,0 +1,2 @@
+BASE_DIR: C:\Users\yazan\Desktop\Jordan-Fire-Intelligence-v3-fixed
+DATABASE_URL: sqlite:///C:\Users\yazan\Desktop\Jordan-Fire-Intelligence-v3-fixed\data\fire_incidents.db

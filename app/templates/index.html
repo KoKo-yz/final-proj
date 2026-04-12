@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Fire Incident Map - Jordan Fire Intelligence{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-dark text-white py-4 py-md-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-fire text-danger me-2"></i>
+                    Forest Fire Prediction System
+                </h1>
+                <p class="lead mb-0">
+                    AI-powered early warning system for fire and safety engineering in Jordan
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-3 py-2">
+                    <span class="badge bg-success rounded-pill" id="total-incidents-badge">Loading...</span>
+                    <span class="small">Total Incidents</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Controls Bar -->
+<section class="controls-bar bg-light border-bottom py-3">
+    <div class="container">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label class="form-label mb-0 fw-semibold">
+                    <i class="bi bi-calendar3 me-1"></i>Year:
+                </label>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" id="year-filter" style="min-width: 120px;">
+                    <option value="">All Years</option>
+                </select>
+            </div>
+            
+            <div class="col-auto">
+                <label class="form-label mb-0 fw-semibold">
+                    <i class="bi bi-fire me-1"></i>Type:
+                </label>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" id="type-filter" style="min-width: 140px;">
+                    <option value="">All Types</option>
+                    <option value="Forest">Forest</option>
+                    <option value="Grassland">Grassland/Fields</option>
+                </select>
+            </div>
+            
+            <div class="col-auto">
+                <label class="form-label mb-0 fw-semibold">
+                    <i class="bi bi-layers me-1"></i>Layer:
+                </label>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="layer-type" id="layer-points" value="points">
+                    <label class="btn btn-outline-primary btn-sm" for="layer-points">
+                        <i class="bi bi-geo-alt me-1"></i>Points
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="layer-type" id="layer-cluster" value="cluster">
+                    <label class="btn btn-outline-primary btn-sm" for="layer-cluster">
+                        <i class="bi bi-diagram-3 me-1"></i>Cluster
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="layer-type" id="layer-heatmap" value="heatmap" checked>
+                    <label class="btn btn-outline-primary btn-sm" for="layer-heatmap">
+                        <i class="bi bi-grid-3x3 me-1"></i>Heatmap
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-auto ms-auto">
+                <button class="btn btn-primary btn-sm" id="apply-filters">
+                    <i class="bi bi-funnel me-1"></i>Apply Filters
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="reset-filters">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="map-section">
+    <div class="container-fluid p-0">
+        <div id="map" class="fire-map"></div>
+    </div>
+</section>
+
+<!-- Quick Stats -->
+<section class="quick-stats py-4 bg-light border-top">
+    <div class="container">
+        <div class="row g-3 stagger-children" id="quick-stats-container">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100 stat-card reveal">
+                    <div class="card-body text-center">
+                        <i class="bi bi-fire text-danger mb-2" style="font-size: 1.5rem;"></i>
+                        <div class="text-muted small mb-1">Total Incidents</div>
+                        <div class="stat-number" id="stat-total" data-target="0">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100 stat-card reveal">
+                    <div class="card-body text-center">
+                        <i class="bi bi-tree text-danger mb-2" style="font-size: 1.5rem;"></i>
+                        <div class="text-muted small mb-1">Forest Fires</div>
+                        <div class="stat-number" id="stat-forest" data-target="0" style="color: var(--danger);">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100 stat-card reveal">
+                    <div class="card-body text-center">
+                        <i class="bi bi-flower1 text-warning mb-2" style="font-size: 1.5rem;"></i>
+                        <div class="text-muted small mb-1">Grassland Fires</div>
+                        <div class="stat-number" id="stat-grassland" data-target="0" style="color: var(--warning);">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100 stat-card reveal">
+                    <div class="card-body text-center">
+                        <i class="bi bi-exclamation-triangle text-danger mb-2" style="font-size: 1.5rem;"></i>
+                        <div class="text-muted small mb-1">High-Risk Areas</div>
+                        <div class="stat-number" id="stat-highrisk" data-target="0" style="color: #dc3545;">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Loading Overlay -->
+<div id="map-loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="mt-2">Loading incidents...</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/map.js?v=5"></script>
+{% endblock %}

@@ -1,0 +1,939 @@
+{% extends "base.html" %}
+{% block title %}Jordan Fire Intelligence Platform — AI-Powered Fire Analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── INTRO PAGE SPECIFIC STYLES ─────────────────────────── */
+:root {
+  --fire-red:    #dc2626;
+  --fire-orange: #ea580c;
+  --fire-amber:  #d97706;
+  --night:       #0a0f1e;
+  --night-mid:   #111827;
+  --glass-w:     rgba(255,255,255,0.06);
+  --glass-b:     rgba(255,255,255,0.10);
+}
+
+/* Hero --------------------------------------------------- */
+.intro-hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 40%, #1a0a0a 70%, #0f0500 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(220,38,38,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220,38,38,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+@keyframes gridPulse {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 0.9; }
+}
+
+.hero-glow-1 {
+  position: absolute; width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,0.18) 0%, transparent 70%);
+  top: -200px; left: -200px;
+  animation: floatGlow 12s ease-in-out infinite;
+}
+.hero-glow-2 {
+  position: absolute; width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234,88,12,0.12) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: floatGlow 10s ease-in-out infinite reverse;
+}
+@keyframes floatGlow {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(30px, 20px) scale(1.08); }
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.3);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 0.78rem; font-weight: 600;
+  color: #fca5a5; letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #ef4444;
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+  animation: fadeInUp 0.9s ease-out 0.1s both;
+}
+.hero-title .fire-word {
+  background: linear-gradient(135deg, #fbbf24, #f97316, #dc2626);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.15rem; font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  max-width: 580px; line-height: 1.7;
+  animation: fadeInUp 0.9s ease-out 0.2s both;
+}
+
+.hero-stats-row {
+  display: flex; flex-wrap: wrap; gap: 1.5rem;
+  animation: fadeInUp 0.9s ease-out 0.35s both;
+}
+.hero-stat {
+  display: flex; flex-direction: column;
+}
+.hero-stat-number {
+  font-size: 2rem; font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, #fbbf24, #ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-stat-label {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: rgba(255,255,255,0.45);
+}
+
+.hero-cta-row {
+  display: flex; flex-wrap: wrap; gap: 1rem;
+  animation: fadeInUp 0.9s ease-out 0.5s both;
+}
+.btn-fire {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff; font-weight: 700; font-size: 1rem;
+  padding: 14px 32px; border-radius: 12px; border: none;
+  box-shadow: 0 8px 32px rgba(220,38,38,0.4);
+  transition: all 0.3s ease;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-fire:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(220,38,38,0.55);
+  color: #fff;
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.85); font-weight: 600; font-size: 1rem;
+  padding: 14px 32px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.3s ease;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff; transform: translateY(-2px);
+}
+
+/* Hero scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  color: rgba(255,255,255,0.3); font-size: 0.75rem; font-weight: 500;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: bounceY 2s ease-in-out infinite;
+}
+@keyframes bounceY {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(8px); }
+}
+
+/* Jordan map silhouette decoration */
+.hero-viz {
+  position: relative;
+  animation: fadeInRight 1s ease-out 0.3s both;
+}
+.hero-viz-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 2rem;
+  backdrop-filter: blur(12px);
+}
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(220,38,38,0.4);
+  animation: pulseRing 2.5s ease-out infinite;
+}
+@keyframes pulseRing {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Analysis Section --------------------------------------- */
+.analysis-section {
+  background: #0f172a;
+  padding: 6rem 0;
+}
+
+.section-eyebrow {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #ef4444;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 800; color: #fff;
+  line-height: 1.2; margin-bottom: 1rem;
+}
+.section-sub {
+  font-size: 1.05rem; color: rgba(255,255,255,0.5);
+  max-width: 600px;
+}
+
+.method-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  height: 100%;
+  position: relative; overflow: hidden;
+}
+.method-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--card-accent, linear-gradient(90deg, #dc2626, #f97316));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.method-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+}
+.method-card:hover::before { transform: scaleX(1); }
+
+.method-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin-bottom: 1.25rem;
+}
+.method-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+.method-title {
+  font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;
+}
+.method-desc {
+  font-size: 0.88rem; color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+}
+.method-metric {
+  margin-top: 1.25rem; padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-size: 0.8rem; font-weight: 600;
+  color: rgba(255,255,255,0.35);
+}
+.method-metric span { color: #fbbf24; font-weight: 700; }
+
+/* Data section  ------------------------------------------ */
+.data-section {
+  background: linear-gradient(180deg, #0a0f1e 0%, #0f1629 100%);
+  padding: 6rem 0;
+}
+.data-stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px; padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.data-stat-card:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-4px);
+}
+.data-stat-num {
+  font-size: 2.8rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, #fbbf24, #ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.data-stat-label { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Timeline ----------------------------------------------- */
+.timeline-section {
+  background: #0f172a; padding: 6rem 0;
+}
+.timeline-item {
+  display: flex; gap: 1.5rem; margin-bottom: 2.5rem;
+  opacity: 0; transform: translateX(-20px);
+  transition: all 0.5s ease;
+}
+.timeline-item.visible { opacity: 1; transform: translateX(0); }
+.timeline-dot {
+  flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-top: 2px;
+}
+.timeline-content h5 { color: #fff; font-weight: 700; margin-bottom: 0.4rem; }
+.timeline-content p  { color: rgba(255,255,255,0.5); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+
+/* CTA section -------------------------------------------- */
+.cta-section {
+  background: radial-gradient(ellipse at center, rgba(220,38,38,0.15) 0%, #0a0f1e 70%);
+  padding: 7rem 0;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeInUp   { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+@keyframes fadeInDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:none; } }
+@keyframes fadeInRight { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:none; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════ -->
+<section class="intro-hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+
+  <div class="container position-relative z-1 py-5">
+    <div class="row align-items-center g-5">
+
+      <!-- Left: text -->
+      <div class="col-lg-7">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Jordan Civil Defense Intelligence Platform
+        </div>
+
+        <h1 class="hero-title mb-4">
+          AI-Powered<br>
+          <span class="fire-word">Fire Intelligence</span><br>
+          for Jordan
+        </h1>
+
+        <p class="hero-sub mb-5">
+          The most comprehensive fire incident analysis platform in Jordan —
+          239,368 real incidents from 2018–2025, analyzed using machine learning,
+          polynomial regression, K-Means clustering, and Pearson climate correlation.
+        </p>
+
+        <div class="hero-stats-row mb-5">
+          <div class="hero-stat">
+            <span class="hero-stat-number">239,368</span>
+            <span class="hero-stat-label">Fire Incidents</span>
+          </div>
+          <div class="hero-stat" style="border-left:1px solid rgba(255,255,255,0.1); padding-left:1.5rem;">
+            <span class="hero-stat-number">8</span>
+            <span class="hero-stat-label">Years of Data</span>
+          </div>
+          <div class="hero-stat" style="border-left:1px solid rgba(255,255,255,0.1); padding-left:1.5rem;">
+            <span class="hero-stat-number">48</span>
+            <span class="hero-stat-label">CD Stations</span>
+          </div>
+          <div class="hero-stat" style="border-left:1px solid rgba(255,255,255,0.1); padding-left:1.5rem;">
+            <span class="hero-stat-number">3</span>
+            <span class="hero-stat-label">Regions</span>
+          </div>
+        </div>
+
+        <div class="hero-cta-row">
+          <a href="/map" class="btn-fire">
+            <i class="bi bi-map-fill"></i> Launch Fire Map
+          </a>
+          <a href="/dashboard" class="btn-ghost">
+            <i class="bi bi-graph-up-arrow"></i> View Analytics
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: live stats card -->
+      <div class="col-lg-5 d-none d-lg-block">
+        <div class="hero-viz">
+          <div class="hero-viz-card">
+            <!-- Live counter cards pulled via JS -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span style="color:rgba(255,255,255,0.5); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;">Live System Status</span>
+              <span style="background:rgba(34,197,94,0.15); color:#4ade80; font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:999px; border:1px solid rgba(34,197,94,0.3);">
+                ● ONLINE
+              </span>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div style="background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.2); border-radius:12px; padding:1.25rem; text-align:center;">
+                  <div style="font-size:1.6rem; font-weight:800; color:#f87171;" id="live-total">—</div>
+                  <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em;">Total Incidents</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); border-radius:12px; padding:1.25rem; text-align:center;">
+                  <div style="font-size:1.6rem; font-weight:800; color:#fbbf24;" id="live-year">2019</div>
+                  <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em;">Worst Year</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:12px; padding:1.25rem; text-align:center;">
+                  <div style="font-size:1.6rem; font-weight:800; color:#60a5fa;" id="live-stations">48</div>
+                  <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em;">CD Stations</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:1.25rem; text-align:center;">
+                  <div style="font-size:1.6rem; font-weight:800; color:#4ade80;" id="live-coverage">94.7%</div>
+                  <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.06em;">Coverage &lt;15km</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fire type breakdown bar -->
+            <div style="margin-top:0.5rem;">
+              <div class="d-flex justify-content-between mb-1" style="font-size:0.73rem; color:rgba(255,255,255,0.45);">
+                <span>Grassland Fires</span>
+                <span id="grass-pct">—%</span>
+              </div>
+              <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
+                <div id="grass-bar" style="height:100%; background:linear-gradient(90deg,#fbbf24,#f97316); border-radius:999px; width:0%; transition:width 1.5s ease;"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-2 mb-1" style="font-size:0.73rem; color:rgba(255,255,255,0.45);">
+                <span>Forest Fires</span>
+                <span id="forest-pct">—%</span>
+              </div>
+              <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
+                <div id="forest-bar" style="height:100%; background:linear-gradient(90deg,#ef4444,#b91c1c); border-radius:999px; width:0%; transition:width 1.5s ease;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating decorative elements -->
+          <div style="position:absolute; top:-20px; right:-20px; width:80px; height:80px;">
+            <div class="pulse-ring" style="width:60px; height:60px; top:10px; left:10px;"></div>
+            <div style="width:16px; height:16px; background:#ef4444; border-radius:50%; position:absolute; top:22px; left:22px; box-shadow:0 0 12px rgba(239,68,68,0.8);"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <i class="bi bi-chevron-down"></i>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     ANALYSIS METHODS
+══════════════════════════════════════════════════════════ -->
+<section class="analysis-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-eyebrow">Analytical Engine</div>
+      <h2 class="section-title">7 Methods. One Complete Picture.</h2>
+      <p class="section-sub mx-auto" style="color:rgba(255,255,255,0.45);">
+        Every analysis method applied to the 239,368-record Jordan Civil Defense dataset, from raw coordinate conversion to AI-assisted station placement.
+      </p>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- 1. Historical Trend Analysis -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#dc2626,#f97316);">
+          <div class="method-icon" style="background:rgba(220,38,38,0.12);">📊</div>
+          <div class="method-tag" style="background:rgba(220,38,38,0.12); color:#f87171;">Historical Analysis</div>
+          <div class="method-title">Year-over-Year Trend Analysis</div>
+          <div class="method-desc">
+            Full temporal breakdown of 239,368 incidents across 2018–2025. 
+            Identifies 2019 as the worst year on record (51,436 fires), 
+            tracks growth rates, regional shifts, and seasonal distribution patterns using bar, stacked, and donut charts.
+          </div>
+          <div class="method-metric">Dataset: <span>239,368 records · 8 years · 3 regions</span></div>
+        </div>
+      </div>
+
+      <!-- 2. Pearson Correlation -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#0ea5e9,#3b82f6);">
+          <div class="method-icon" style="background:rgba(14,165,233,0.12);">🌦️</div>
+          <div class="method-tag" style="background:rgba(14,165,233,0.12); color:#38bdf8;">Climate Intelligence</div>
+          <div class="method-title">Pearson Climate Correlation</div>
+          <div class="method-desc">
+            Calculates Pearson correlation coefficients between annual fire volumes and 
+            three climate variables — max temperature, rainfall (mm), and wind speed (km/h) — 
+            revealing that rainfall has the strongest statistical link to fire frequency (r = 0.79).
+          </div>
+          <div class="method-metric">Key finding: <span>Rainfall r=0.79 · Wind r=-0.597 · Temp r=-0.383</span></div>
+        </div>
+      </div>
+
+      <!-- 3. Polynomial Regression -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#8b5cf6,#ec4899);">
+          <div class="method-icon" style="background:rgba(139,92,246,0.12);">🔮</div>
+          <div class="method-tag" style="background:rgba(139,92,246,0.12); color:#a78bfa;">Predictive AI</div>
+          <div class="method-title">Polynomial Regression (Degree 2)</div>
+          <div class="method-desc">
+            Trained on 8 years of regional fire data per governorate, this model captures 
+            the non-linear acceleration and plateau patterns that linear regression misses. 
+            Projects fire incident volumes for 2026–2028 with confidence bands per region.
+          </div>
+          <div class="method-metric">Forecast horizon: <span>2026 · 2027 · 2028 per region</span></div>
+        </div>
+      </div>
+
+      <!-- 4. K-Means Clustering -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#10b981,#06b6d4);">
+          <div class="method-icon" style="background:rgba(16,185,129,0.12);">🗺️</div>
+          <div class="method-tag" style="background:rgba(16,185,129,0.12); color:#34d399;">K-Means ML</div>
+          <div class="method-title">K-Means Station Optimization</div>
+          <div class="method-desc">
+            Scikit-Learn K-Means clustering iteratively calculates the mathematical center of gravity 
+            for fire incident clusters across Jordan. Proposes optimal Civil Defense station placements 
+            that minimize average response distance, compared against the 48 real station locations.
+          </div>
+          <div class="method-metric">Result: <span>AI-optimized placement vs. 48 real stations</span></div>
+        </div>
+      </div>
+
+      <!-- 5. Haversine Coverage Analysis -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#f59e0b,#ef4444);">
+          <div class="method-icon" style="background:rgba(245,158,11,0.12);">📐</div>
+          <div class="method-tag" style="background:rgba(245,158,11,0.12); color:#fbbf24;">Spatial Analysis</div>
+          <div class="method-title">Haversine Distance / Coverage Gap</div>
+          <div class="method-desc">
+            For each of 2,000 sampled fire incidents, the Haversine formula computes exact 
+            great-circle distance to every Civil Defense station. Identifies that 5.3% of fires 
+            occur beyond 15km of any station, exposing critical coverage gaps by region.
+          </div>
+          <div class="method-metric">Coverage: <span>94.7% within 15km · 5.3% beyond</span></div>
+        </div>
+      </div>
+
+      <!-- 6. Expert Rule-Based Risk Engine -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#ec4899,#f97316);">
+          <div class="method-icon" style="background:rgba(236,72,153,0.12);">🎯</div>
+          <div class="method-tag" style="background:rgba(236,72,153,0.12); color:#f472b6;">Risk Prediction</div>
+          <div class="method-title">Multi-Factor Risk Engine</div>
+          <div class="method-desc">
+            Combines historical incident frequency (40%), climate factor scoring (35%), 
+            and regional base risk profiling (25%) into a real-time risk score. 
+            Outputs low/medium/high classification with tactical recommendations and 
+            resource deployment guidance for Civil Defense commanders.
+          </div>
+          <div class="method-metric">Factors: <span>Historical 40% · Climate 35% · Regional 25%</span></div>
+        </div>
+      </div>
+
+      <!-- 7. Coordinate Transformation -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#06b6d4,#0ea5e9);">
+          <div class="method-icon" style="background:rgba(6,182,212,0.12);">📍</div>
+          <div class="method-tag" style="background:rgba(6,182,212,0.12); color:#22d3ee;">Data Engineering</div>
+          <div class="method-title">Multi-System Coordinate Conversion</div>
+          <div class="method-desc">
+            Raw data spanned two incompatible coordinate systems across 8 years — 
+            Palestine 1923 Grid (2018–2019) and UTM Zone 36N (2020–2025). 
+            Custom transformation pipelines converted all records to standard WGS-84 GPS 
+            coordinates for unified geospatial analysis.
+          </div>
+          <div class="method-metric">Systems unified: <span>Palestine 1923 Grid + UTM Zone 36N → WGS-84</span></div>
+        </div>
+      </div>
+
+      <!-- 8. Marker Clustering (GIS) -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#3b82f6,#8b5cf6);">
+          <div class="method-icon" style="background:rgba(59,130,246,0.12);">🔭</div>
+          <div class="method-tag" style="background:rgba(59,130,246,0.12); color:#60a5fa;">GIS / Visualization</div>
+          <div class="method-title">Density Heatmap & Marker Clustering</div>
+          <div class="method-desc">
+            Client-side Leaflet.heat renders kernel density estimation heatmaps from raw GPS coordinates 
+            with blue→red intensity gradients. MarkerCluster groups individual incidents by zoom level, 
+            enabling drill-down from country-level patterns to city-block incident details.
+          </div>
+          <div class="method-metric">Rendered: <span>12,000 heatmap points · 8,000 clustered markers</span></div>
+        </div>
+      </div>
+
+      <!-- 9. Resource Allocation Reporting -->
+      <div class="col-md-6 col-xl-4">
+        <div class="method-card" style="--card-accent: linear-gradient(90deg,#f97316,#fbbf24);">
+          <div class="method-icon" style="background:rgba(249,115,22,0.12);">📋</div>
+          <div class="method-tag" style="background:rgba(249,115,22,0.12); color:#fb923c;">Operational Output</div>
+          <div class="method-title">Resource Allocation & Hotspot Report</div>
+          <div class="method-desc">
+            Synthesizes all analyses into actionable tactical output: Top 5 critical hotspot zones 
+            with exact coordinates, fire density rankings, AI-recommended station deployments, 
+            SMS alert triggers, and exportable Civil Defense resource briefings.
+          </div>
+          <div class="method-metric">Output: <span>Hotspot CSV · Tactical briefings · SMS triggers</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     DATA STATS STRIP
+══════════════════════════════════════════════════════════ -->
+<section class="data-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-eyebrow">Dataset Scope</div>
+      <h2 class="section-title">Built on Real Jordan Civil Defense Data</h2>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">239,368</div>
+          <div class="data-stat-label">Fire incident records</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">2018–2025</div>
+          <div class="data-stat-label">Historical range</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">48</div>
+          <div class="data-stat-label">Civil defense stations</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">2019</div>
+          <div class="data-stat-label">Worst year on record</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">3</div>
+          <div class="data-stat-label">Regions (N/C/S)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">24</div>
+          <div class="data-stat-label">Climate data records</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">94.7%</div>
+          <div class="data-stat-label">Station coverage (15km)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="data-stat-card">
+          <div class="data-stat-num">5.3%</div>
+          <div class="data-stat-label">Coverage gap (beyond 15km)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     HOW IT WORKS TIMELINE
+══════════════════════════════════════════════════════════ -->
+<section class="timeline-section">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4">
+        <div class="section-eyebrow">Methodology</div>
+        <h2 class="section-title">From Raw Data to Actionable Intelligence</h2>
+        <p style="color:rgba(255,255,255,0.45); font-size:0.9rem; line-height:1.7;">
+          The full pipeline from raw Excel sheets with incompatible coordinate systems 
+          to real-time risk prediction and K-Means station optimization.
+        </p>
+        <a href="/map" class="btn-fire mt-3 d-inline-flex" style="font-size:0.9rem; padding:12px 24px;">
+          Explore the Map <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="timeline-item reveal-timeline">
+          <div class="timeline-dot" style="background:rgba(220,38,38,0.15); color:#ef4444;">1</div>
+          <div class="timeline-content">
+            <h5>Data Ingestion &amp; Coordinate Transformation</h5>
+            <p>Raw Civil Defense Excel files across 8 years used two incompatible coordinate systems (Palestine 1923 Grid and UTM Zone 36N). Custom parsers converted all 239,368 records to WGS-84 GPS coordinates with Jordan bounds validation.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal-timeline" style="transition-delay:0.1s;">
+          <div class="timeline-dot" style="background:rgba(14,165,233,0.15); color:#38bdf8;">2</div>
+          <div class="timeline-content">
+            <h5>Arabic Type Mapping &amp; Classification</h5>
+            <p>Arabic subtype labels (غابات-وأشجار, حقول-وأعشاب, etc.) were normalized to Forest/Grassland categories. Region strings mapped to Irbid, Amman, and Ma'an governorates. All records batch-loaded into SQLite in 50k chunks.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal-timeline" style="transition-delay:0.2s;">
+          <div class="timeline-dot" style="background:rgba(139,92,246,0.15); color:#a78bfa;">3</div>
+          <div class="timeline-content">
+            <h5>Statistical Analysis &amp; Climate Correlation</h5>
+            <p>Year-over-year trend analysis (bar/stacked charts), Pearson correlations between climate variables and fire volumes, and fire type distribution across all 8 years and 3 regions.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal-timeline" style="transition-delay:0.3s;">
+          <div class="timeline-dot" style="background:rgba(16,185,129,0.15); color:#34d399;">4</div>
+          <div class="timeline-content">
+            <h5>K-Means Clustering for Station Optimization</h5>
+            <p>Scikit-Learn K-Means clusters fire incidents geospatially to find mathematical centers of gravity. Compares AI-proposed station placement against the 48 real Civil Defense stations to identify uncovered zones.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal-timeline" style="transition-delay:0.4s;">
+          <div class="timeline-dot" style="background:rgba(245,158,11,0.15); color:#fbbf24;">5</div>
+          <div class="timeline-content">
+            <h5>Polynomial Regression Forecasting (2026–2028)</h5>
+            <p>Degree-2 polynomial regression trained per region captures non-linear acceleration in historical fire counts, projecting future volumes with confidence bounds through 2028.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal-timeline" style="transition-delay:0.5s;">
+          <div class="timeline-dot" style="background:rgba(236,72,153,0.15); color:#f472b6;">6</div>
+          <div class="timeline-content">
+            <h5>Real-Time Risk Scoring &amp; Tactical Output</h5>
+            <p>Multi-factor engine combines historical frequency, climate scores, and regional risk profiles into a 0–100 risk score with LOW/MEDIUM/HIGH classification, SMS alert triggers, and resource deployment recommendations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVIGATION CARDS
+══════════════════════════════════════════════════════════ -->
+<section style="background:#0a0f1e; padding:5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-eyebrow">Explore the Platform</div>
+      <h2 class="section-title">All Tools, One System</h2>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <a href="/map" class="text-decoration-none">
+          <div class="method-card h-100" style="--card-accent: linear-gradient(90deg,#dc2626,#f97316); cursor:pointer;">
+            <div class="method-icon" style="background:rgba(220,38,38,0.12); font-size:2rem;">🗺️</div>
+            <div class="method-title" style="font-size:1.3rem; margin-bottom:0.75rem;">Interactive Fire Map</div>
+            <div class="method-desc">
+              Explore all 239,368 incidents on a live Leaflet map. Switch between kernel density heatmap, 
+              marker clusters, and individual points. Filter by year, fire type, and region. 
+              48 Civil Defense stations shown with 15km coverage circles.
+            </div>
+            <div class="mt-3" style="color:#ef4444; font-weight:600; font-size:0.85rem;">
+              Open Map <i class="bi bi-arrow-right"></i>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <a href="/dashboard" class="text-decoration-none">
+          <div class="method-card h-100" style="--card-accent: linear-gradient(90deg,#3b82f6,#8b5cf6); cursor:pointer;">
+            <div class="method-icon" style="background:rgba(59,130,246,0.12); font-size:2rem;">📊</div>
+            <div class="method-title" style="font-size:1.3rem; margin-bottom:0.75rem;">Analytics Dashboard</div>
+            <div class="method-desc">
+              Fire trend charts by year, regional comparison (North/Central/South), 
+              fire type doughnut, governorate breakdown, Civil Defense coverage analysis, 
+              Haversine distance stats, and the live risk prediction form.
+            </div>
+            <div class="mt-3" style="color:#60a5fa; font-weight:600; font-size:0.85rem;">
+              Open Dashboard <i class="bi bi-arrow-right"></i>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TEAM
+══════════════════════════════════════════════════════════ -->
+<section style="background: linear-gradient(180deg,#0a0f1e 0%,#0f172a 100%); padding:6rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-eyebrow">The People Behind It</div>
+      <h2 class="section-title">Our Team</h2>
+      <p style="color:rgba(255,255,255,0.4); font-size:0.95rem;">
+        Prince Al Hussein Bin Abdallah II Academy &mdash; Fire and Safety Engineering, Graduation Project 2025
+      </p>
+    </div>
+
+    <!-- Supervisor -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-6 col-lg-5">
+        <div style="
+          background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(220,38,38,0.08));
+          border: 1px solid rgba(251,191,36,0.25);
+          border-radius: 20px; padding: 2rem;
+          text-align: center; position: relative; overflow: hidden;
+        ">
+          <!-- Crown accent line -->
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#fbbf24,transparent);"></div>
+
+          <div style="
+            width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;
+            background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(220,38,38,0.2));
+            border:2px solid rgba(251,191,36,0.4);
+            display:flex;align-items:center;justify-content:center;
+            font-size:2rem;
+          ">👩‍🏫</div>
+
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#fbbf24;margin-bottom:0.4rem;">
+            Project Supervisor
+          </div>
+          <div style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:0.25rem;">
+            Dr. Diana Rbehat
+          </div>
+          <div style="font-size:0.83rem;color:rgba(255,255,255,0.45);">
+            Prince Al Hussein Bin Abdallah II Academy
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Members -->
+    <div class="row g-3 justify-content-center">
+
+      {% set members = [
+        {"name": "Yazan Majed Ko", "emoji": "🧑‍💻", "role": "Data Engineering & Backend"},
+        {"name": "Saifaldeen Shaker", "emoji": "🧑‍🔬", "role": "ML & Predictive Models"},
+        {"name": "Yousef Alsaad", "emoji": "🧑‍💻", "role": "GIS & Map Visualization"},
+        {"name": "Mostafa Khawaled", "emoji": "🧑‍🔬", "role": "Climate Correlation Analysis"},
+        {"name": "Ahmad Zaid", "emoji": "🧑‍💻", "role": "Risk Engine & Reporting"},
+        {"name": "Hashem Saleh", "emoji": "🧑‍🔬", "role": "Station Coverage Analysis"}
+      ] %}
+
+      {% for m in members %}
+      <div class="col-sm-6 col-lg-4">
+        <div style="
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px; padding: 1.5rem;
+          text-align: center;
+          transition: all 0.3s ease;
+          cursor: default;
+        "
+        onmouseover="this.style.background='rgba(220,38,38,0.08)'; this.style.borderColor='rgba(220,38,38,0.25)'; this.style.transform='translateY(-4px)';"
+        onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='none';"
+        >
+          <div style="font-size:2rem;margin-bottom:0.75rem;">{{ m.emoji }}</div>
+          <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.25rem;">{{ m.name }}</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);">{{ m.role }}</div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     CTA
+══════════════════════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div class="hero-badge mx-auto mb-4" style="display:inline-flex;">
+        <span class="dot"></span>
+        Prince Al Hussein Bin Abdallah II Academy
+      </div>
+      <h2 class="section-title mb-3" style="font-size:clamp(1.8rem,4vw,3rem);">
+        Ready to Explore Jordan's<br>
+        <span style="background:linear-gradient(135deg,#fbbf24,#ef4444); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Fire Intelligence?</span>
+      </h2>
+      <p style="color:rgba(255,255,255,0.45); font-size:1rem; line-height:1.7; margin-bottom:2.5rem;">
+        Graduation project — Fire and Safety Engineering.<br>
+        Team: Hashem · Yazan · Yousef · Ahmad · Saif · Mustafa<br>
+        <span style="font-size:0.85rem;">Supervisor: Dr. Diana Rbehat</span>
+      </p>
+      <div class="hero-cta-row justify-content-center">
+        <a href="/map" class="btn-fire">
+          <i class="bi bi-map-fill"></i> Launch Map
+        </a>
+        <a href="/dashboard" class="btn-ghost">
+          <i class="bi bi-graph-up"></i> View Analytics
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  // Live stats from API
+  try {
+    const data = await fetchAPI('/statistics/overview');
+    const total = data.total_incidents || 0;
+    const el = document.getElementById('live-total');
+    if (el) {
+      let n = 0;
+      const step = Math.ceil(total / 80);
+      const t = setInterval(() => {
+        n = Math.min(n + step, total);
+        el.textContent = n.toLocaleString();
+        if (n >= total) clearInterval(t);
+      }, 25);
+    }
+
+    // Fire type bars
+    const types = data.by_type || [];
+    const forestRec = types.find(t => t.type === 'Forest');
+    const grassRec  = types.find(t => t.type === 'Grassland');
+    const sum = (forestRec?.count||0) + (grassRec?.count||0) || 1;
+    const grassPct  = Math.round(((grassRec?.count||0)/sum)*100);
+    const forestPct = Math.round(((forestRec?.count||0)/sum)*100);
+
+    setTimeout(() => {
+      const gb = document.getElementById('grass-bar');
+      const fb = document.getElementById('forest-bar');
+      const gp = document.getElementById('grass-pct');
+      const fp = document.getElementById('forest-pct');
+      if (gb) gb.style.width = grassPct + '%';
+      if (fb) fb.style.width = forestPct + '%';
+      if (gp) gp.textContent = grassPct + '%';
+      if (fp) fp.textContent = forestPct + '%';
+    }, 600);
+  } catch(e) { console.warn('Stats load:', e); }
+
+  // Timeline reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal-timeline').forEach(el => observer.observe(el));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,775 @@
+{% extends "base.html" %}
+
+{% block title %}Fire Intelligence Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<style>
+  .nav-pills.scrollable-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-pills.scrollable-tabs::-webkit-scrollbar {
+    height: 4px;
+    background: transparent;
+  }
+  .nav-pills.scrollable-tabs::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+  }
+  .nav-pills.scrollable-tabs .nav-link {
+    white-space: nowrap;
+    color: rgba(255,255,255,0.5);
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    padding: 0.8rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav-pills.scrollable-tabs .nav-link:hover {
+    color: #fff;
+  }
+  .nav-pills.scrollable-tabs .nav-link.active {
+    background: transparent;
+    color: #ef4444;
+    border-bottom: 2px solid #ef4444;
+  }
+
+  /* Gauge styles */
+  .gauge-wrapper { width: 100%; max-width: 300px; margin: 0 auto; position: relative; }
+  .gauge-arc { fill: none; stroke: #1e293b; stroke-width: 15; stroke-linecap: round; }
+  .gauge-arc-active { fill: none; stroke: #fbbf24; stroke-width: 15; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s; stroke-dasharray: 251.2; stroke-dashoffset: 251.2; }
+  .gauge-text { fill: #fff; font-size: 2.5rem; font-weight: 700; text-anchor: middle; }
+  
+  .recommendation-check { color: #22c55e; margin-right: 0.5rem; font-size: 1.2rem; }
+  
+  /* Code block */
+  .code-block { background: #0f172a; padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-family: monospace; font-size: 0.9rem; color: #e2e8f0; overflow-x: auto; white-space: pre; }
+  .code-keyword { color: #38bdf8; font-weight: bold; }
+  .code-string { color: #4ade80; }
+  .code-function { color: #fbbf24; }
+  .code-comment { color: #94a3b8; font-style: italic; }
+
+  /* Map container */
+  #explorer-map { height: 500px; border-radius: 8px; background: #0f172a; z-index: 1; border: 1px solid rgba(255,255,255,0.1); }
+  
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Custom Nav Tabs matching Streamlit exactly -->
+<div class="container-fluid pt-3" style="background:#0a0f1e; border-bottom:1px solid #1e293b;">
+    <div class="container">
+        <ul class="nav nav-pills scrollable-tabs" id="dashboard-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-exec-summary" data-bs-toggle="pill" data-bs-target="#content-exec-summary" type="button" role="tab"><i class="bi bi-bullseye me-2 text-danger"></i> Executive Summary</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-historical" data-bs-toggle="pill" data-bs-target="#content-historical" type="button" role="tab"><i class="bi bi-bar-chart-fill me-2 text-primary"></i> Historical Analysis</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-climate" data-bs-toggle="pill" data-bs-target="#content-climate" type="button" role="tab"><i class="bi bi-cloud-rain-fill me-2 text-info"></i> Climate Intelligence</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-predictions" data-bs-toggle="pill" data-bs-target="#content-predictions" type="button" role="tab"><i class="bi bi-graph-up-arrow me-2 text-warning"></i> AI Predictions 2026–28</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-command" data-bs-toggle="pill" data-bs-target="#content-command" type="button" role="tab"><i class="bi bi-map-fill me-2 text-success"></i> Command Map</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-live-risk" data-bs-toggle="pill" data-bs-target="#content-live-risk" type="button" role="tab"><i class="bi bi-lightning-charge-fill me-2 text-danger"></i> Live Risk Calculator</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-coverage" data-bs-toggle="pill" data-bs-target="#content-coverage" type="button" role="tab"><i class="bi bi-triangle-half me-2 text-primary"></i> Coverage Gap Analysis</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-resource" data-bs-toggle="pill" data-bs-target="#content-resource" type="button" role="tab"><i class="bi bi-clipboard-data-fill me-2 text-warning"></i> Resource Report</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-explorer" data-bs-toggle="pill" data-bs-target="#content-explorer" type="button" role="tab"><i class="bi bi-geo-alt-fill me-2 text-danger"></i> Incident Explorer Map</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="py-4">
+    <div class="container tab-content" id="dashboard-tab-content">
+
+        <!-- ==========================================
+             1. EXECUTIVE SUMMARY
+             ========================================== -->
+        <div class="tab-pane fade show active" id="content-exec-summary" role="tabpanel">
+            <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-bullseye fs-2 text-danger me-3"></i>
+                <h2 class="mb-0 fw-bold">Executive Summary</h2>
+            </div>
+            
+            <p class="lead mb-4" style="color:rgba(255,255,255,0.85); font-size:1.1rem; line-height:1.7;">
+                This report presents the findings of a geo-spatial AI analysis of <strong class="text-white">239,368</strong> fire incidents recorded by the Jordanian Civil Defense Directorate between 2018 and 2025. The analysis integrates historical fire GPS coordinates, 8-year climate data from the Open-Meteo API, and K-Means Machine Learning to produce an optimized resource allocation plan.
+            </p>
+
+            <div class="d-flex align-items-center mb-3 mt-5">
+                <i class="bi bi-bar-chart-fill fs-4 text-info me-2"></i>
+                <h4 class="mb-0 fw-bold">Key Findings</h4>
+            </div>
+            
+            <div class="row g-3 mb-5">
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm" style="background:#111827;">
+                        <div class="card-body p-4">
+                            <h2 class="text-danger display-5 fw-bold mb-1">2019</h2>
+                            <p class="text-muted fs-5 mb-0">Worst recorded fire year</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm" style="background:#111827;">
+                        <div class="card-body p-4">
+                            <h2 class="text-warning display-5 fw-bold mb-1">51,436</h2>
+                            <p class="text-muted fs-5 mb-0">Incidents in worst year</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm" style="background:#111827;">
+                        <div class="card-body p-4">
+                            <h2 class="text-info display-5 fw-bold mb-1">0.79</h2>
+                            <p class="text-muted fs-5 mb-0">Rainfall-Fire correlation</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm" style="background:#111827;">
+                        <div class="card-body p-4">
+                            <h2 class="text-danger display-5 fw-bold mb-1">Central (Amman)</h2>
+                            <p class="text-muted fs-5 mb-0">Highest fire-density region</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-trophy-fill fs-4 text-warning me-2"></i>
+                <h4 class="mb-0 fw-bold">Top 5 Critical Hotspot Zones (AI K-Means Output)</h4>
+            </div>
+            <div class="card border-0 mb-5 shadow-sm" style="background:#111827;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead style="background:#0f172a; color:#94a3b8;">
+                                <tr>
+                                    <th class="border-0 px-4 py-3">Priority</th>
+                                    <th class="border-0 py-3">Latitude</th>
+                                    <th class="border-0 py-3">Longitude</th>
+                                    <th class="border-0 py-3 text-center">Fires in Zone</th>
+                                    <th class="border-0 py-3" style="min-width:300px;">AI Geo-Analysis</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                <tr>
+                                    <td class="px-4"><span class="badge bg-danger rounded-pill px-3 py-2">Alpha-1</span></td>
+                                    <td class="text-white">31.9520°N</td>
+                                    <td class="text-white">35.9455°E</td>
+                                    <td class="text-center fw-bold fs-5 text-white">2,101</td>
+                                    <td class="text-muted py-3">
+                                        <div class="mb-1">📍 <b class="text-white">Location Profile:</b> North-Central (Balqa/Zarqa Sector)</div>
+                                        <div>⚠️ <b class="text-warning">Risk Factor:</b> Extreme proximity to expanding urban perimeters. Immediate strategic deployment recommended.</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4"><span class="badge bg-warning text-dark rounded-pill px-3 py-2">Alpha-2</span></td>
+                                    <td class="text-white">32.0631°N</td>
+                                    <td class="text-white">35.8824°E</td>
+                                    <td class="text-center fw-bold fs-5 text-white">1,845</td>
+                                    <td class="text-muted py-3">
+                                        <div class="mb-1">📍 <b class="text-white">Location Profile:</b> Irbid Agricultural Belt</div>
+                                        <div>⚠️ <b class="text-warning">Risk Factor:</b> Dense dry vegetation clusters identified. High historical recurrence during peak summer drought weeks.</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4"><span class="badge bg-warning text-dark rounded-pill px-3 py-2">Alpha-3</span></td>
+                                    <td class="text-white">31.8901°N</td>
+                                    <td class="text-white">36.0125°E</td>
+                                    <td class="text-center fw-bold fs-5 text-white">1,620</td>
+                                    <td class="text-muted py-3">
+                                        <div class="mb-1">📍 <b class="text-white">Location Profile:</b> East Amman Industrial Fringe</div>
+                                        <div>⚠️ <b class="text-warning">Risk Factor:</b> High wind corridor intersecting with dry grassland. Escalation potential to industrial assets is critical.</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4"><span class="badge bg-info text-dark rounded-pill px-3 py-2">Alpha-4</span></td>
+                                    <td class="text-white">32.5510°N</td>
+                                    <td class="text-white">35.8500°E</td>
+                                    <td class="text-center fw-bold fs-5 text-white">1,550</td>
+                                    <td class="text-muted py-3">
+                                        <div class="mb-1">📍 <b class="text-white">Location Profile:</b> Jerash Forest Reserve Border</div>
+                                        <div>⚠️ <b class="text-warning">Risk Factor:</b> Crown fire threat. Deep forest penetration risk if initial containment fails due to steep topography.</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4"><span class="badge bg-info text-dark rounded-pill px-3 py-2">Alpha-5</span></td>
+                                    <td class="text-white">31.7500°N</td>
+                                    <td class="text-white">35.8000°E</td>
+                                    <td class="text-center fw-bold fs-5 text-white">1,280</td>
+                                    <td class="text-muted py-3">
+                                        <div class="mb-1">📍 <b class="text-white">Location Profile:</b> Madaba Agricultural Interface</div>
+                                        <div>⚠️ <b class="text-warning">Risk Factor:</b> Dispersed small-scale agricultural burns frequently escaping containment into adjacent wildlands.</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-grid-3x3-gap-fill fs-4 text-primary me-2"></i>
+                    <h4 class="mb-0 fw-bold">Automated SMS Warning System (Proposed Pipeline)</h4>
+                </div>
+                <div class="card border-0" style="background:#111827;">
+                    <div class="card-header bg-transparent border-bottom-0 pt-3 pb-0">
+                        <button class="btn btn-link text-decoration-none text-white px-0" type="button">
+                            <i class="bi bi-chevron-right me-1"></i> View Full Technical Proposal
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-block mb-4">
+<span class="code-keyword">def</span> <span class="code-function">fire_risk_alert_pipeline</span>(region: <span class="code-keyword">str</span>):
+    forecast = open_meteo_api.get_7day_forecast(region)
+    score = compute_risk_score(forecast.max_temp, forecast.total_rain, forecast.wind)
+    <span class="code-keyword">if</span> score > <span class="code-string">65</span>:
+        hotspots = kmeans_model.get_hotspots(region=region)
+        <span class="code-keyword">for</span> zone <span class="code-keyword">in</span> hotspots:
+            sms_api.broadcast(zone.residents, message=<span class="code-string">ALERT_TEMPLATE</span>)
+            civil_defense_api.increase_patrol_frequency(region, factor=<span class="code-string">2</span>)</div>
+
+                        <h5 class="mb-3 text-white fw-bold"><i class="bi bi-check-square-fill text-success me-2"></i> Recommendations to the Jordanian Civil Defense Ministry</h5>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-square-fill recommendation-check"></i>
+                            <p class="mb-0 text-white" style="font-size:1.05rem;"><b>Immediate:</b> Deploy 3 new stations in the Central Amman pressure zone (zones Alpha-1 to Alpha-4 identified by AI)</p>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-square-fill recommendation-check"></i>
+                            <p class="mb-0 text-white" style="font-size:1.05rem;"><b>Short-term:</b> Implement the predictive SMS alert system — estimated cost using Twilio API: < 500 JD/year</p>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-square-fill recommendation-check"></i>
+                            <p class="mb-0 text-white" style="font-size:1.05rem;"><b>Mid-term:</b> Expand coverage in Irbid and Northern Jordan forest belt to protect against future drought-driven wildfire seasons</p>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-square-fill recommendation-check"></i>
+                            <p class="mb-0 text-white" style="font-size:1.05rem;"><b>Long-term:</b> Integrate this platform with live IoT weather sensors for real-time risk scoring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- ==========================================
+             2. HISTORICAL ANALYSIS
+             ========================================== -->
+        <div class="tab-pane fade" id="content-historical" role="tabpanel">
+            <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-bar-chart-fill fs-2 text-primary me-3"></i>
+                <h2 class="mb-0 fw-bold">Historical Analysis</h2>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-pie-chart text-muted me-2"></i>Fire Type Distribution (Top Categories)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-types"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-map-fill text-muted me-2"></i>Geographic Distribution of All Fires</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-geographic"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-bar-chart text-muted me-2"></i>Fires by Region Per Year</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-regions-yearly"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-graph-up-arrow text-muted me-2"></i>Year-over-Year % Change in Fire Volume</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-yoy"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-bar-chart-steps text-muted me-2"></i>Raw Data Table (Governorate Breakdown)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-governorates" style="max-height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             3. CLIMATE INTELLIGENCE
+             ========================================== -->
+        <div class="tab-pane fade" id="content-climate" role="tabpanel">
+            <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-cloud-rain-fill fs-2 text-info me-3"></i>
+                <h2 class="mb-0 fw-bold">Climate Intelligence</h2>
+            </div>
+            <div class="alert border-0 mb-4" style="background:rgba(168,85,247,0.1); color:#c084fc;">
+                <b>Using Polynomial Regression (Degree 2)</b> trained on 8 years of regional fire data, the model projects fire incident volumes for the next 3 years. The model learns the non-linear acceleration pattern in the data — accounting for curves and plateaus that linear regression would miss.
+            </div>
+            <div class="card border-0 shadow-sm" style="background:#111827;">
+                <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                    <h5 class="mb-0 fw-bold text-white"><i class="bi bi-graph-up text-muted me-2"></i>Actual (2018-2025) + AI-Predicted (2026-2028) Fire Incidents</h5>
+                </div>
+                <div class="card-body" style="height: 400px;">
+                    <canvas id="chart-predictions"></canvas>
+                </div>
+            </div>
+            
+            <div class="card border-0 mb-4 mt-4" style="background:#111827;">
+                <div class="card-body p-4 text-center" id="climate-features-container">
+                    <div class="spinner-border text-info mb-3" role="status"></div>
+                    <p class="text-muted fs-5">Loading Pearson correlations...</p>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm mb-4" style="background:#111827;">
+                <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                    <h5 class="mb-0 fw-bold text-white"><i class="bi bi-thermometer-sun text-danger me-2"></i>Fire Volume vs Annual Peak Temperature (Dual Axis)</h5>
+                </div>
+                <div class="card-body" style="height: 350px;">
+                    <canvas id="chart-dual-climate"></canvas>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-cloud-drizzle text-info me-2"></i>Annual Precipitation by Region (Drought Indicator)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-precipitation"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100 border-0" style="background:#111827;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-wind text-muted me-2"></i>Peak Annual Wind Speed by Region</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-wind"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             4. AI PREDICTIONS 2026-28
+             ========================================== -->
+        <div class="tab-pane fade" id="content-predictions" role="tabpanel">
+             <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-graph-up-arrow fs-2 text-warning me-3"></i>
+                <h2 class="mb-0 fw-bold">Predictive Intelligence: Jordan Fire Outlook 2026–2028</h2>
+            </div>
+            
+            <div class="card mb-4 border-0" style="background:#111827;">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="fw-bold mb-3 text-white">Degree 2 Polynomial Regression Model Output</h4>
+                    <div class="alert border-0 mb-4" style="background:rgba(168,85,247,0.1); color:#c084fc;">
+                        <b>Using Polynomial Regression (Degree 2)</b> trained on 8 years of regional fire data, the model projects fire incident volumes for the next 3 years. The model learns the non-linear acceleration pattern in the data — accounting for curves and plateaus that linear regression would miss.
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm mb-5" style="background:#0f172a;">
+                        <div class="card-header border-bottom-0 bg-transparent pt-4 pb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="bi bi-graph-up text-muted me-2"></i>Actual (2018-2025) + AI-Predicted (2026-2028) Fire Incidents</h5>
+                        </div>
+                        <div class="card-body" style="height: 400px;">
+                            <canvas id="chart-predictions"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive bg-dark rounded custom-table-wrapper" style="border:1px solid #1e293b;">
+                        <table class="table table-hover table-dark mb-0 align-middle">
+                            <thead style="background:#0f172a;">
+                                <tr>
+                                    <th class="py-4 px-4 font-monospace text-muted border-0">Region</th>
+                                    <th class="py-4 text-center border-0 text-muted">2025 (Actual/Est)</th>
+                                    <th class="py-4 text-center border-0 text-white">2026 Prediction</th>
+                                    <th class="py-4 text-center border-0 text-white">2027 Prediction</th>
+                                    <th class="py-4 text-center border-0 text-white">2028 Prediction</th>
+                                    <th class="py-4 text-center border-0 text-muted">Risk Trajectory</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid #1e293b;">
+                                    <td class="px-4 py-3 fw-bold fs-5">Central (Amman)</td>
+                                    <td class="text-center py-3 fs-5">6,104</td>
+                                    <td class="text-center text-warning fw-bold fs-4 py-3">7,265</td>
+                                    <td class="text-center text-danger fw-bold fs-4 py-3">8,140</td>
+                                    <td class="text-center text-danger fw-bold fs-4 py-3">9,450</td>
+                                    <td class="text-center py-3"><span class="badge bg-danger bg-opacity-25 text-danger px-3 py-2"><i class="bi bi-arrow-up-right me-1"></i> High Escalation</span></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #1e293b;">
+                                    <td class="px-4 py-3 fw-bold fs-5">North (Irbid)</td>
+                                    <td class="text-center py-3 fs-5">5,038</td>
+                                    <td class="text-center text-warning fw-bold fs-4 py-3">5,400</td>
+                                    <td class="text-center text-warning fw-bold fs-4 py-3">5,900</td>
+                                    <td class="text-center text-danger fw-bold fs-4 py-3">6,420</td>
+                                    <td class="text-center py-3"><span class="badge bg-warning bg-opacity-25 text-warning px-3 py-2"><i class="bi bi-arrow-up-right me-1"></i> Moderate Escalation</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 fw-bold fs-5">South (Ma'an)</td>
+                                    <td class="text-center py-3 fs-5">4,244</td>
+                                    <td class="text-center text-success fw-bold fs-4 py-3">3,900</td>
+                                    <td class="text-center text-success fw-bold fs-4 py-3">3,750</td>
+                                    <td class="text-center text-success fw-bold fs-4 py-3">3,500</td>
+                                    <td class="text-center py-3"><span class="badge bg-success bg-opacity-25 text-success px-3 py-2"><i class="bi bi-arrow-down-right me-1"></i> Decline</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==========================================
+             5. COMMAND MAP
+             ========================================== -->
+        <div class="tab-pane fade" id="content-command" role="tabpanel">
+            <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-map-fill fs-2 text-success me-3"></i>
+                <h2 class="mb-0 fw-bold">Live Command Map</h2>
+            </div>
+            
+            <div class="alert alert-success border-0 mb-4" style="background:rgba(34,197,94,0.1); color:#4ade80;">
+                <i class="bi bi-info-circle-fill me-2"></i> This map loads thousands of high-definition geo-coordinates. You can filter geographically using the controls in the top bar.
+            </div>
+            
+            <div class="card border-0 shadow-lg overflow-hidden" style="background:#111827; border-radius:12px;">
+                <iframe id="command-map-frame" data-src="/map" src="" style="width: 100%; height: 650px; border: 0;" title="Live Command Map"></iframe>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             6. LIVE RISK CALCULATOR
+             ========================================== -->
+        <div class="tab-pane fade" id="content-live-risk" role="tabpanel">
+             <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-lightning-charge-fill fs-2 text-danger me-3"></i>
+                <h2 class="mb-0 fw-bold">Live Fire Risk Prediction Engine</h2>
+            </div>
+            
+            <div style="border-left: 4px solid #0ea5e9; background:rgba(14,165,233,0.05); padding:1.25rem; border-radius:4px;" class="mb-5">
+                <p class="mb-0 fs-5" style="color:rgba(255,255,255,0.8);">
+                    This interactive engine lets you input current weather conditions and receive an <strong class="text-info">AI-computed fire risk score</strong> based on 8 years of historical patterns. This is the theoretical core of the "SMS Alert System" — if the score exceeds a threshold, warnings are dispatched.
+                </p>
+            </div>
+
+            <div class="row g-5">
+                <!-- Input Column -->
+                <div class="col-lg-5">
+                    <h4 class="mb-4 d-flex align-items-center"><i class="bi bi-gear-fill text-muted me-2 fs-3"></i> Input Parameters</h4>
+                    
+                    <button class="btn w-100 mb-4 fw-bold py-3 text-dark border-0 rounded" style="background:#fff;" onclick="randomizeRiskForm()">
+                        <i class="bi bi-cloud-snow me-2 text-primary fs-5"></i> Fetch Current Weather <span class="text-muted fw-normal ms-2">(Simulate)</span>
+                    </button>
+                    
+                    <form id="prediction-form" oninput="calculateLiveRisk()">
+                        <div class="mb-4">
+                            <label class="form-label text-muted fs-6 mb-2">Target Region</label>
+                            <select class="form-select form-select-lg bg-dark border-secondary text-white" id="pred-governorate">
+                                <option value="Amman">Central (Amman)</option>
+                                <option value="Irbid">North (Irbid)</option>
+                                <option value="Ma'an">South (Ma'an)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label class="form-label text-muted fs-6 mb-0">Peak Temperature Forecast (°C)</label>
+                                <span class="text-danger fw-bold fs-5" id="val-temp">35.00</span>
+                            </div>
+                            <input type="range" class="form-range" id="pred-temp" min="10" max="50" step="0.5" value="35.00" oninput="document.getElementById('val-temp').innerText=parseFloat(this.value).toFixed(2); calculateLiveRisk();">
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label class="form-label text-muted fs-6 mb-0">Annual Rainfall (mm)</label>
+                                <span class="text-danger fw-bold fs-5" id="val-rain">120.00</span>
+                            </div>
+                            <input type="range" class="form-range" id="pred-rainfall" min="0" max="500" step="1" value="120.00" oninput="document.getElementById('val-rain').innerText=parseFloat(this.value).toFixed(2); calculateLiveRisk();">
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label class="form-label text-muted fs-6 mb-0">Peak Wind Speed (km/h)</label>
+                                <span class="text-danger fw-bold fs-5" id="val-wind">45.00</span>
+                            </div>
+                            <input type="range" class="form-range" id="pred-wind" min="0" max="100" step="0.5" value="45.00" oninput="document.getElementById('val-wind').innerText=parseFloat(this.value).toFixed(2); calculateLiveRisk();">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Output Column -->
+                <div class="col-lg-7">
+                    <h4 class="mb-4 d-flex align-items-center"><i class="bi bi-bar-chart-line-fill text-muted me-2 fs-3"></i> AI Risk Analysis Output</h4>
+                    
+                    <div class="text-center mb-4 mt-2">
+                        <div class="display-6 fw-bold mb-3 text-white">Risk Score: <span id="gauge-status-dot" class="text-danger">●</span> <span id="gauge-status-text" class="text-danger">HIGH RISK</span></div>
+                        
+                        <div class="gauge-wrapper mt-4 mb-4" style="height: 160px; overflow:hidden;">
+                            <svg viewBox="0 0 200 110" width="100%" height="100%">
+                                <!-- Background Arc -->
+                                <path class="gauge-arc" d="M 15 100 A 85 85 0 0 1 185 100" />
+                                <!-- Progress Arc -->
+                                <path class="gauge-arc-active" id="gauge-progress" stroke-dashoffset="130" d="M 15 100 A 85 85 0 0 1 185 100" />
+                                
+                                <text x="100" y="95" class="gauge-text" id="gauge-val" style="font-size:3rem; font-family:'Inter',sans-serif;">55.2</text>
+                                
+                                <!-- Markers -->
+                                <text x="15" y="115" fill="rgba(255,255,255,0.3)" font-size="8">0</text>
+                                <text x="35" y="45" fill="rgba(255,255,255,0.3)" font-size="8">20</text>
+                                <text x="75" y="25" fill="rgba(255,255,255,0.3)" font-size="8">40</text>
+                                <text x="125" y="25" fill="rgba(255,255,255,0.3)" font-size="8">60</text>
+                                <text x="165" y="45" fill="rgba(255,255,255,0.3)" font-size="8">80</text>
+                                <text x="190" y="115" fill="rgba(255,255,255,0.3)" font-size="8">100</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4 border" style="border-color:rgba(251,191,36,0.3) !important; background:transparent;">
+                        <div class="card-body bg-dark text-center py-4" style="border-radius:6px; background:#1e293b !important;">
+                            <div class="text-muted mb-2 fs-5">Resource Impact for <span id="impact-year" class="fw-bold text-white">2026</span></div>
+                            <div class="form-check d-inline-block text-start m-0">
+                                <input class="form-check-input mt-1 shadow-none" style="background-color:#0ea5e9; border-color:#0ea5e9;" type="checkbox" checked disabled id="impact-check">
+                                <label class="form-check-label fs-4 fw-bold text-white" for="impact-check">
+                                    Estimated incidents: <span class="text-warning ms-1" id="impact-val">7,265</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert fade show py-4" style="background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.3);" id="sms-trigger-alert">
+                        <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-4" style="vertical-align:middle;"></i> 
+                        <span class="fs-5" style="color:rgba(255,255,255,0.9); line-height:1.6;">
+                            <b class="text-danger">SMS Alert System Trigger:</b> Conditions in <b id="trigger-region" class="text-danger text-decoration-underline">Central (Amman)</b> exceed safe thresholds. Automated warnings should be dispatched to farmers and outdoor workers in the AI-identified hotspot zones.
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             7. COVERAGE GAP ANALYSIS
+             ========================================== -->
+        <div class="tab-pane fade" id="content-coverage" role="tabpanel">
+             <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-triangle-half fs-2 text-primary me-3"></i>
+                <h2 class="mb-0 fw-bold">Coverage Gap Analysis</h2>
+            </div>
+            
+            <div class="card shadow-lg mb-4 border-0" style="background:#111827;">
+                <div class="card-header text-white border-bottom-0 py-4" style="background:linear-gradient(90deg, #1d4ed8, #0f172a);">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-geo-alt me-2"></i>Civil Defense Distance & Coverage Profiles</h4>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-4 mb-5" id="coverage-stats">
+                        <div class="col-6 col-md-3">
+                            <div class="text-center p-3 rounded bg-dark border border-secondary">
+                                <div class="text-muted mb-2 fw-semibold text-uppercase" style="letter-spacing:1px;">Within 5 km</div>
+                                <div class="display-5 fw-bold text-success" id="coverage-5km">-</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-center p-3 rounded bg-dark border border-secondary">
+                                <div class="text-muted mb-2 fw-semibold text-uppercase" style="letter-spacing:1px;">Within 10 km</div>
+                                <div class="display-5 fw-bold text-info" id="coverage-10km">-</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-center p-3 rounded bg-dark border border-secondary">
+                                <div class="text-muted mb-2 fw-semibold text-uppercase" style="letter-spacing:1px;">Within 15 km</div>
+                                <div class="display-5 fw-bold text-warning" id="coverage-15km">-</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-center p-3 rounded border" style="background:rgba(220,38,38,0.1); border-color:rgba(220,38,38,0.3) !important;">
+                                <div class="text-danger mb-2 fw-bold text-uppercase" style="letter-spacing:1px;">Beyond 15 km</div>
+                                <div class="display-5 fw-bold text-danger" id="coverage-beyond">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-4 text-white">Average Distance by Governorate</h5>
+                            <div style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="chart-coverage-gov"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-4 text-white">Most Remote Fires Recorded</h5>
+                            <div class="table-responsive rounded border border-secondary" style="height: 300px; overflow-y: auto;">
+                                <table class="table table-hover table-dark mb-0">
+                                    <thead style="position:sticky; top:0; background:#0f172a; z-index:1;">
+                                        <tr>
+                                            <th class="py-3 px-3">Distance</th>
+                                            <th class="py-3 px-3">Nearest Station</th>
+                                            <th class="py-3 px-3">Region</th>
+                                            <th class="py-3 px-3">Year</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="remote-fires-body" class="border-top-0">
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             8. RESOURCE REPORT
+             ========================================== -->
+        <div class="tab-pane fade" id="content-resource" role="tabpanel">
+            <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-clipboard-data-fill fs-2 text-warning me-3"></i>
+                <h2 class="mb-0 fw-bold">Civil Defense Resource Allocation Report</h2>
+            </div>
+            
+            <div class="card shadow-lg border-0" style="background:#111827;">
+                <div class="card-header border-bottom-0 py-4 bg-transparent">
+                    <h5 class="mb-0 fw-bold text-white"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Governorate Risk Summary</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive custom-table-wrapper">
+                        <table class="table table-hover table-dark mb-0 align-middle" id="gov-table">
+                            <thead style="background:#1e293b;">
+                                <tr>
+                                    <th class="py-3 px-4 text-muted border-0">#</th>
+                                    <th class="py-3 border-0 text-white">Governorate</th>
+                                    <th class="py-3 text-center border-0 text-white">Total Incidents</th>
+                                    <th class="py-3 text-center border-0 text-muted">Forest Fires</th>
+                                    <th class="py-3 text-center border-0 text-muted">Grassland Fires</th>
+                                    <th class="py-3 text-center border-0 text-white">YoY Trend</th>
+                                    <th class="py-3 text-center border-0 text-white">Risk Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gov-table-body" class="border-top-0">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-5">Loading data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             9. INCIDENT EXPLORER MAP
+             ========================================== -->
+        <div class="tab-pane fade" id="content-explorer" role="tabpanel">
+             <div class="d-flex align-items-center mb-4 mt-2">
+                <i class="bi bi-geo-alt-fill fs-2 text-danger me-3"></i>
+                <h2 class="mb-0 fw-bold">Interactive Fire Incident Explorer</h2>
+            </div>
+            
+            <div style="border-left: 4px solid #0ea5e9; background:rgba(14,165,233,0.05); padding:1.5rem; border-radius:4px;" class="mb-5">
+                <p class="mb-0 fs-5" style="color:rgba(255,255,255,0.85); line-height:1.6;">
+                    Explore individual fire incidents with full metadata popups. Due to the massive scale of the dataset (239,368 records), the map automatically visualizes a representative sample of up to <strong class="text-info">1,500 incidents</strong> to maintain browser performance. Click on any incident marker to view its raw data payload.
+                </p>
+            </div>
+
+            <div class="row mb-5 g-4">
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-semibold">Select Year to Explore</label>
+                    <select class="form-select form-select-lg bg-dark text-white border-secondary" id="explorer-year" onchange="loadExplorerData()">
+                        <option value="">All Years</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-semibold">Filter by Region</label>
+                    <select class="form-select form-select-lg bg-dark text-white border-secondary" id="explorer-region" onchange="loadExplorerData()">
+                        <option value="">All Regions</option>
+                        <option value="Irbid">North (Irbid)</option>
+                        <option value="Amman">Central (Amman)</option>
+                        <option value="Ma'an">South (Ma'an)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-semibold d-block">Total Incidents in Selection</label>
+                    <div class="display-5 fw-bold text-white mt-1" id="explorer-total">0</div>
+                </div>
+            </div>
+
+            <div class="alert fade show py-3 border-0 d-flex align-items-center" style="background:rgba(234,179,8,0.15); color:#fde047;" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                <div class="fs-6">
+                    Displaying a random sample of <strong id="explorer-sample-count" class="text-white">0</strong> incidents out of <strong id="explorer-total-count" class="text-white">0</strong> to optimize rendering performance.
+                </div>
+            </div>
+
+            <div id="explorer-map" class="w-100 shadow-lg mt-4 mb-5" style="border:1px solid #1e293b; height:600px;"></div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/dashboard.js?v=99"></script>
+{% endblock %}

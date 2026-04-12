@@ -1,0 +1,745 @@
+/* ============================================================
+   Forest Fire Prediction System - Premium Stylesheet
+   Animated, modern design with particle effects
+   ============================================================ */
+
+:root {
+    --primary: #dc2626;
+    --primary-dark: #991b1b;
+    --primary-light: #fca5a5;
+    --secondary: #1e40af;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --dark: #0f172a;
+    --dark-mid: #1e293b;
+    --light: #f8fafc;
+    --text: #111827;
+    --text-muted: #64748b;
+    --glass: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fireGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.6); }
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes emberFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes ripple {
+    0% { transform: scale(0); opacity: 0.6; }
+    100% { transform: scale(4); opacity: 0; }
+}
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    padding-top: 56px;
+    background: var(--light);
+    overflow-x: hidden;
+}
+
+.main-content {
+    min-height: calc(100vh - 56px - 200px);
+}
+
+/* ============================================================
+   ANIMATED GRADIENT HERO
+   ============================================================ */
+
+.hero-section {
+    background: linear-gradient(-45deg, #0f172a, #1e3a5f, #991b1b, #0f172a);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.hero-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section .container {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* ============================================================
+   FIRE EMBER PARTICLES
+   ============================================================ */
+
+.ember-container {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ember {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff6b35, #dc2626, transparent);
+    animation: emberFloat 3s ease-out infinite;
+    opacity: 0;
+}
+
+.ember:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 3s; }
+.ember:nth-child(2) { left: 25%; animation-delay: 0.5s; animation-duration: 4s; }
+.ember:nth-child(3) { left: 40%; animation-delay: 1s; animation-duration: 3.5s; }
+.ember:nth-child(4) { left: 55%; animation-delay: 1.5s; animation-duration: 4.5s; }
+.ember:nth-child(5) { left: 70%; animation-delay: 2s; animation-duration: 3s; }
+.ember:nth-child(6) { left: 85%; animation-delay: 0.8s; animation-duration: 4s; }
+.ember:nth-child(7) { left: 15%; animation-delay: 1.2s; animation-duration: 3.8s; }
+.ember:nth-child(8) { left: 60%; animation-delay: 2.2s; animation-duration: 3.2s; }
+
+/* ============================================================
+   GLASS NAVBAR
+   ============================================================ */
+
+.navbar {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.85) !important;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(15, 23, 42, 0.95) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    transition: all 0.2s ease;
+    padding: 8px 16px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-dark .navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover::after,
+.navbar-dark .navbar-nav .nav-link.active::after {
+    width: 60%;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    background: var(--glass);
+    color: white !important;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+    background: rgba(220, 38, 38, 0.2);
+    font-weight: 600;
+}
+
+/* ============================================================
+   CONTROLS BAR
+   ============================================================ */
+
+.controls-bar {
+    position: sticky;
+    top: 56px;
+    z-index: 100;
+    background: rgba(248, 250, 252, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================
+   CARDS - ANIMATED
+   ============================================================ */
+
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: rgba(220, 38, 38, 0.2);
+}
+
+.card-header {
+    border-radius: 16px 16px 0 0 !important;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+/* Scroll-reveal animation for cards */
+.card.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================================
+   STAT COUNTERS - ANIMATED
+   ============================================================ */
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--primary), var(--warning));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.05) 0%, transparent 70%);
+    transition: all 0.5s ease;
+}
+
+.stat-card:hover::before {
+    transform: scale(1.5);
+}
+
+/* ============================================================
+   RISK BADGES
+   ============================================================ */
+
+.risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.risk-badge:hover {
+    transform: scale(1.05);
+}
+
+.risk-low {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+}
+
+.risk-medium {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+.risk-high {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    animation: fireGlow 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+
+.fire-map {
+    height: calc(100vh - 200px);
+    min-height: 500px;
+    width: 100%;
+    z-index: 1;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    animation: scaleIn 0.2s ease-out;
+}
+
+.leaflet-popup-content {
+    margin: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.popup-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.popup-title i {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Custom fire markers */
+.fire-marker-icon {
+    background: none;
+    border: none;
+}
+
+.fire-marker-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.fire-marker-dot:hover {
+    transform: scale(1.3);
+}
+
+.fire-marker-dot.forest {
+    background: radial-gradient(circle, #ef4444, #dc2626);
+}
+
+.fire-marker-dot.grassland {
+    background: radial-gradient(circle, #f59e0b, #d97706);
+}
+
+.fire-marker-dot.trees {
+    background: radial-gradient(circle, #22c55e, #16a34a);
+}
+
+/* ============================================================
+   PROGRESS BARS - ANIMATED
+   ============================================================ */
+
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+    background-size: 200% 100%;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+}
+
+.btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #7f1d1d 100%);
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f5f9;
+    transform: scale(1.005);
+}
+
+/* ============================================================
+   LOADING OVERLAY
+   ============================================================ */
+
+.loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 991.98px) {
+    .fire-map {
+        height: 60vh;
+        min-height: 400px;
+    }
+    .controls-bar {
+        position: relative;
+        top: 0;
+    }
+    .display-5 { font-size: 1.75rem; }
+}
+
+@media (max-width: 767.98px) {
+    .fire-map {
+        height: 50vh;
+        min-height: 350px;
+    }
+    .hero-section { padding: 2rem 0 !important; }
+    .stat-number { font-size: 1.5rem; }
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--warning));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out both;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.6s ease-out both;
+}
+
+.fade-in-right {
+    animation: fadeInRight 0.6s ease-out both;
+}
+
+.scale-in {
+    animation: scaleIn 0.4s ease-out both;
+}
+
+/* Staggered children animation */
+.stagger-children > * {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ============================================================
+   GLOBAL DARK THEME — matches intro page across all tabs
+   ============================================================ */
+
+body {
+  background: #0a0f1e !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Section backgrounds */
+.bg-light       { background: #0f172a !important; }
+.bg-white       { background: #111827 !important; }
+.border-bottom  { border-color: rgba(255,255,255,0.08) !important; }
+
+/* Cards */
+.card {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.card:hover {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+}
+.card-header {
+  background: rgba(255,255,255,0.05) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+.card-body { color: rgba(255,255,255,0.8) !important; }
+
+/* Controls bar (map page) */
+.controls-bar {
+  background: rgba(10,15,30,0.95) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Form controls */
+.form-control, .form-select {
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.9) !important;
+}
+.form-control:focus, .form-select:focus {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(220,38,38,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important;
+  color: #fff !important;
+}
+.form-label { color: rgba(255,255,255,0.7) !important; }
+.form-select option { background: #1e293b; color: #fff; }
+
+/* Tables */
+.table { color: rgba(255,255,255,0.8) !important; }
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: rgba(255,255,255,0.03) !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+.table tbody tr:hover {
+  background-color: rgba(255,255,255,0.06) !important;
+}
+.table thead { color: rgba(255,255,255,0.55) !important; }
+.table > :not(caption) > * > * { border-color: rgba(255,255,255,0.07) !important; }
+
+/* Progress bars */
+.progress { background: rgba(255,255,255,0.08) !important; }
+
+/* Text utilities */
+.text-muted { color: rgba(255,255,255,0.45) !important; }
+.text-dark  { color: rgba(255,255,255,0.85) !important; }
+
+/* Badges */
+.badge.bg-primary { background: #1d4ed8 !important; }
+.badge.bg-success { background: #15803d !important; }
+.badge.bg-warning { background: #b45309 !important; }
+.badge.bg-danger  { background: #b91c1c !important; }
+
+/* Button group (layer selector) */
+.btn-outline-primary {
+  color: rgba(255,255,255,0.7) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+.btn-outline-primary:hover,
+.btn-check:checked + .btn-outline-primary {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #fff !important;
+}
+
+/* Apply Filters button */
+.btn-danger {
+  background: linear-gradient(135deg,#dc2626,#b91c1c) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(220,38,38,0.35) !important;
+}
+.btn-outline-secondary {
+  color: rgba(255,255,255,0.6) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+.btn-outline-secondary:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+
+/* Hero on sub-pages */
+.hero-section {
+  background: linear-gradient(135deg,#0a0f1e 0%,#0f172a 50%,#1a0505 100%) !important;
+}
+
+/* Stat numbers */
+.stat-number {
+  background: linear-gradient(135deg,#fbbf24,#ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section backgrounds on dashboard */
+section.py-4, section.py-5 { background: transparent !important; }
+
+/* Risk badge colors preserved */
+.risk-low    { background: rgba(22,163,74,0.2)  !important; color: #4ade80 !important; }
+.risk-medium { background: rgba(217,119,6,0.2)  !important; color: #fbbf24 !important; }
+.risk-high   { background: rgba(220,38,38,0.2)  !important; color: #f87171 !important; }
+
+/* Map popup */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #1e293b !important;
+  color: #fff !important;
+}
+.leaflet-popup-content { color: rgba(255,255,255,0.85) !important; }
+
+/* Scrollbar inside tables */
+::-webkit-scrollbar-track { background: #0f172a; }
+

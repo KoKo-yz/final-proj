@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}About - Jordan Forest Fire Prediction{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="hero-section bg-gradient-dark text-white py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            About This Project
+        </h1>
+        <p class="lead">
+            Forest Fire Prediction Using Artificial Intelligence<br>
+            <span class="text-white-50">Graduation Project - Fire and Safety Engineering</span>
+        </p>
+    </div>
+</section>
+
+<!-- Project Overview -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-4">Project Overview</h2>
+                
+                <p class="lead">
+                    This system is an AI-powered early warning tool designed to predict and map forest fire risks 
+                    across Jordan. By analyzing over <strong>120,000 fire incident records</strong> from 2018 to 2025, 
+                    our machine learning models can identify high-risk areas and time periods, enabling civil protection 
+                    authorities to take proactive measures.
+                </p>
+                
+                <h4 class="fw-bold mt-5 mb-3">How It Works</h4>
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm reveal">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="bi bi-database text-primary fs-4"></i>
+                                    </div>
+                                    <h5 class="mb-0">1. Data Collection</h5>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    Historical fire incident data from across Jordan, including coordinates, 
+                                    fire types, dates, and locations.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm reveal">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="bi bi-gear text-success fs-4"></i>
+                                    </div>
+                                    <h5 class="mb-0">2. Processing</h5>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    Coordinate conversion, feature engineering, and data cleaning 
+                                    to prepare for ML model training.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm reveal">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="bi bi-cpu text-warning fs-4"></i>
+                                    </div>
+                                    <h5 class="mb-0">3. ML Models</h5>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    Multiple algorithms (Random Forest, XGBoost, SVM, Neural Networks) 
+                                    trained to predict fire risk levels.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm reveal">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-danger bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="bi bi-shield-check text-danger fs-4"></i>
+                                    </div>
+                                    <h5 class="mb-0">4. Early Warning</h5>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    Interactive dashboard and risk maps enable authorities to 
+                                    allocate resources and prevent disasters.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="fw-bold mt-5 mb-3">Key Features</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Interactive Fire Map</strong> - View all incidents with clustering and heatmap visualization
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Risk Prediction</strong> - Predict fire risk for any region and month using AI models
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Statistical Dashboards</strong> - Analyze trends by year, month, type, and location
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Model Comparison</strong> - Evaluate performance of different ML algorithms
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Mobile Responsive</strong> - Accessible on desktop, tablet, and mobile devices
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Team Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-people me-2"></i>Project Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><i class="bi bi-person-check text-primary me-2"></i>Hashem</li>
+                            <li class="mb-2"><i class="bi bi-person-check text-primary me-2"></i>Yazan</li>
+                            <li class="mb-2"><i class="bi bi-person-check text-primary me-2"></i>Yousef</li>
+                            <li class="mb-2"><i class="bi bi-person-check text-primary me-2"></i>Ahmad</li>
+                            <li class="mb-2"><i class="bi bi-person-check text-primary me-2"></i>Saif</li>
+                            <li><i class="bi bi-person-check text-primary me-2"></i>Mustafa</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Supervisor Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                            <i class="bi bi-mortarboard text-primary fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">Dr. Diana Rbehat</h5>
+                        <p class="text-muted mb-0">Project Supervisor</p>
+                        <small class="text-muted">Prince Al Hussein Bin Abdallah II Academy</small>
+                    </div>
+                </div>
+                
+                <!-- Tech Stack -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Technology Stack</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted fw-semibold">Backend</small>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="badge bg-secondary">Python</span>
+                                <span class="badge bg-secondary">FastAPI</span>
+                                <span class="badge bg-secondary">SQLAlchemy</span>
+                                <span class="badge bg-secondary">SQLite</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted fw-semibold">Frontend</small>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="badge bg-info">HTML/CSS</span>
+                                <span class="badge bg-info">JavaScript</span>
+                                <span class="badge bg-info">Bootstrap 5</span>
+                                <span class="badge bg-info">Leaflet</span>
+                                <span class="badge bg-info">Chart.js</span>
+                            </div>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-semibold">ML / Data Science</small>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="badge bg-success">scikit-learn</span>
+                                <span class="badge bg-success">XGBoost</span>
+                                <span class="badge bg-success">pandas</span>
+                                <span class="badge bg-success">numpy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Academy Info -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-5 text-center">
+                        <i class="bi bi-building text-primary mb-3" style="font-size: 3rem;"></i>
+                        <h3 class="fw-bold mb-3">Prince Al Hussein Bin Abdallah II Academy</h3>
+                        <p class="lead text-muted mb-4">
+                            Fire and Safety Engineering Department<br>
+                            Graduation Project 2025
+                        </p>
+                        <div class="row g-4 text-start">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Project Goal</h6>
+                                <p class="text-muted mb-0">
+                                    Develop an AI-powered early warning system to predict and prevent 
+                                    forest fires across Jordan, protecting natural resources and communities.
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Impact</h6>
+                                <p class="text-muted mb-0">
+                                    By enabling data-driven decision making, this system helps civil protection 
+                                    authorities allocate resources effectively and reduce fire-related damages.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
