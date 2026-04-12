@@ -202,7 +202,7 @@ function renderClimateCharts(climateData, overviewData) {
             data: {
                 labels: years,
                 datasets: [
-                    { label: 'Max Temp (Amman)', data: years.map(y => { const d = climateData.correlations.find(c => c.region.includes('Amman') && c.year === y); return d ? d.max_temp_c : 22.0; }), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], tension: 0.4, yAxisID: 'y1' },
+                    { label: 'Max Temp (Amman)', data: years.map(y => { const d = climateData.correlations.find(c => c.region.includes('Amman') && c.year === y); return d ? d.max_temp_c : 22.0; }), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], pointStyle: 'circle', pointRadius: 4, pointBackgroundColor: '#f59e0b', tension: 0.4, yAxisID: 'y1' },
                     { label: 'Central (Amman)', data: getRegionFires('Amman'), backgroundColor: '#f43f5e', yAxisID: 'y' },
                     { label: 'North (Irbid)', data: getRegionFires('Irbid'), backgroundColor: '#10b981', yAxisID: 'y' },
                     { label: 'South (Ma\'an)', data: getRegionFires("Ma'an"), backgroundColor: '#0ea5e9', yAxisID: 'y' }
@@ -213,7 +213,7 @@ function renderClimateCharts(climateData, overviewData) {
                 scales: {
                     x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.7)' } },
                     y: { type: 'linear', display: true, position: 'left', grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Fire Incidents', color: '#fff'} },
-                    y1: { type: 'linear', display: true, position: 'right', grid: { display: false }, title: { display: true, text: 'Max Temp (°C)', color: '#fff'} }
+                    y1: { type: 'linear', display: true, position: 'right', grid: { display: false }, title: { display: true, text: 'Max Temp (°C)', color: '#fff'}, min: 22.3, max: 23.8 }
                 }
             }
         });
