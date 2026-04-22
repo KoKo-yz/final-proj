@@ -50,11 +50,11 @@ def init_db():
     """Initialize database - create tables if they don't exist"""
     import app.models.incident  # Import models to register them
     Base.metadata.create_all(bind=engine)
-    
+
     # Create additional tables for climate data and civil defense stations
-    from sqlalchemy import Column, Integer, Float, String, Table, MetaData
+    from sqlalchemy import Column, Integer, Float, String, Table, MetaData, text
     metadata = MetaData()
-    
+
     climate_table = Table(
         'climate_data',
         metadata,
@@ -65,7 +65,7 @@ def init_db():
         Column('rainfall_mm', Float),
         Column('max_wind_kmh', Float),
     )
-    
+
     stations_table = Table(
         'civil_defense_stations',
         metadata,
@@ -74,9 +74,25 @@ def init_db():
         Column('latitude', Float),
         Column('longitude', Float),
     )
-    
+
     metadata.create_all(bind=engine)
     print("[OK] All tables created successfully (including climate and stations)")
+
+    # ── Migration: add subtype_arabic column if it doesn't exist ───────────
+    with engine.connect() as conn:
+        # Check if column exists
+        columns = conn.execute(text(
+            "PRAGMA table_info(fire_incidents)"
+        )).fetchall()
+        col_names = [c[1] for c in columns]
+        if 'subtype_arabic' not in col_names:
+            conn.execute(text(
+                "ALTER TABLE fire_incidents ADD COLUMN subtype_arabic VARCHAR(100)"
+            ))
+            conn.commit()
+            print("[OK] Added subtype_arabic column to fire_incidents table")
+        else:
+            print("[OK] subtype_arabic column already exists")
 
 
 def get_db_session():

@@ -7,6 +7,7 @@ Supervisor: Dr. Diana Rbehat
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 import os
 
 # Database setup
@@ -24,6 +25,9 @@ app = FastAPI(
     description="AI-powered forest fire prediction and risk mapping for Jordan",
     version="2.0.0"
 )
+
+# Add session middleware for password protection
+app.add_middleware(SessionMiddleware, secret_key="jordan_fire_secret_key_2026")
 
 # Mount static files
 static_dir = os.path.join(os.path.dirname(__file__), "static")

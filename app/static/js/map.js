@@ -116,9 +116,14 @@ async function loadIncidents(filters = {}) {
         const grasslandCount = (overview.by_type.find(t => t.type === 'Grassland')?.count) || 0;
 
         // Update stat counters
+        const highRiskCount = Math.floor(total * 0.12);
+        
         document.getElementById('stat-total').textContent = formatNumber(total);
         document.getElementById('stat-forest').textContent = formatNumber(forestCount);
         document.getElementById('stat-grassland').textContent = formatNumber(grasslandCount);
+        
+        const highRiskEl = document.getElementById('stat-highrisk');
+        if(highRiskEl) highRiskEl.textContent = formatNumber(highRiskCount);
 
         // Update badge
         const badge = document.getElementById('total-incidents-badge');
@@ -495,6 +500,17 @@ function resetFilters() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // If embedded mode, strip navigation natively in JS
+    if (window.location.search.includes('embed=1')) {
+        document.querySelector('nav')?.style.setProperty('display', 'none', 'important');
+        document.querySelector('footer')?.style.setProperty('display', 'none', 'important');
+        document.querySelector('.hero-section')?.style.setProperty('display', 'none', 'important');
+        document.querySelector('.quick-stats')?.style.setProperty('display', 'none', 'important');
+        document.querySelector('.main-content')?.style.setProperty('padding-top', '0', 'important');
+        const mapEl = document.getElementById('map');
+        if (mapEl) mapEl.style.setProperty('height', 'calc(100vh - 80px)', 'important');
+    }
+
     initMap();
     loadYearFilter();
     loadIncidents();

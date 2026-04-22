@@ -9,9 +9,9 @@ env/
 .env
 
 # Database
-# data/*.db
-# data/*.sqlite
-# data/*.sqlite3
+data/*.db
+data/*.sqlite
+data/*.sqlite3
 
 # ML Models (large files)
 app/models/*.pkl
@@ -35,3 +35,8 @@ temp.html
 # Secrets
 *.pem
 *.key
+
+# Binaries and Build
+zrok.exe
+build/
+dist/
