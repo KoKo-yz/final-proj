@@ -668,10 +668,16 @@ async def predict_risk_endpoint(
     """
     target_year = year or (datetime.now().year + 1)
 
-    # Normalize governorate: accept both short and full forms
-    gov_input = governorate.strip()
-    district_key = GOV_TO_DISTRICT.get(gov_input, gov_input)
-    gov_name = DISTRICT_TO_GOV.get(gov_input, gov_input)
+    # Use normalized short names for database matching
+    gov_name = governorate.strip()
+    if gov_name.startswith("🏙️ "): gov_name = "Amman"
+    if gov_name.startswith("🌲 "): gov_name = "Irbid"
+    if gov_name.startswith("🏜️ "): gov_name = "Ma'an"
+    
+    # Ensure it's one of the known keys
+    if "Amman" in gov_name: gov_name = "Amman"
+    elif "Irbid" in gov_name: gov_name = "Irbid"
+    elif "Ma'an" in gov_name or "Maan" in gov_name: gov_name = "Ma'an"
 
     # Get historical data for this governorate
     historical = db.query(
@@ -724,7 +730,7 @@ async def predict_risk_endpoint(
     with engine.connect() as conn:
         climate_results = conn.execute(
             text("SELECT region, year, max_temp_c, rainfall_mm, max_wind_kmh FROM climate_data WHERE region = :gov"),
-            {"gov": district_key}
+            {"gov": gov_name}
         ).fetchall()
 
     if climate_results:
@@ -756,11 +762,11 @@ async def predict_risk_endpoint(
 
     # Combined risk score (0-100)
     base_risk = (avg_count / max(counts_list)) * 50 if max(counts_list) > 0 else 25
-    trend_adjustment = max(-15, min(15, (trend_factor - 1) * 50))
-    climate_adjustment = max(-10, min(10, (climate_factor - 1) * 30))
+    trend_adjustment = max(-20, min(20, (trend_factor - 1) * 60))
+    climate_adjustment = max(-25, min(25, (climate_factor - 1) * 50))
 
     risk_score = base_risk + trend_adjustment + climate_adjustment
-    risk_score = max(0, min(100, risk_score))
+    risk_score = max(5, min(95, risk_score))
 
     # Risk level
     if risk_score >= 60:

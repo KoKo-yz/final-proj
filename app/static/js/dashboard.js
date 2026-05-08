@@ -523,14 +523,14 @@ async function calculateLiveRisk() {
         
     } catch (err) {
         console.error("Using local calculation fallback", err);
-        // Fallback local calc just in case
-        let score = (temp * 1.5) - (rain * 0.1) + (wind * 0.5);
-        if (gov === 'Amman') score += 15;
-        if (gov === 'Irbid') score += 10;
-        if (gov === 'Ma\'an') score -= 5;
-        score = Math.max(0, Math.min(100, score));
+        // Fallback local calc - made more sensitive to user input
+        let score = (temp * 1.8) - (rain * 0.08) + (wind * 0.8);
+        if (gov === 'Amman') score += 5;
+        if (gov === 'Irbid') score += 2;
+        if (gov === 'Ma\'an') score -= 2;
+        score = Math.max(5, Math.min(98, score)); // Keep it in visible range
         let level = 'Low';
-        if(score >= 60) level = 'High';
+        if(score >= 70) level = 'High';
         else if (score >= 40) level = 'Medium';
         updateGauge(score, level, gov, year);
     }

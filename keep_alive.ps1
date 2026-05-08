@@ -1,4 +1,4 @@
-$PROJECT_DIR = "C:\Users\yazan\Desktop\Jordan-Fire-Intelligence-v3-fixed"
+$PROJECT_DIR = $PSScriptRoot
 $VENV_PYTHON = "$PROJECT_DIR\venv\Scripts\python.exe"
 $ZROK_EXE    = "$PROJECT_DIR\zrok.exe"
 $LOG_FILE    = "$PROJECT_DIR\watchdog.log"
@@ -9,39 +9,32 @@ function Log($msg) {
     $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $line = "[$ts] $msg"
     Write-Host $line
-    Add-Content -Path $LOG_FILE -Value $line
+    Add-Content -Path $LOG_FILE -Value $line -ErrorAction SilentlyContinue
 }
 
 Log "=== Watchdog started ==="
 
 while ($true) {
-    # ── 1. Ensure server is running on port 8000 ──────────────────────────────
+    # 1. Ensure server is running on port 8000
     $tcpPort = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
     if (-not $tcpPort) {
         Log "Server not running on :8000. Starting..."
-        # Kill any stale python just in case
-        Get-Process python -ErrorAction SilentlyContinue | Where-Object {
-            (Get-CimInstance Win32_Process -Filter "ProcessId=$($_.Id)" -ErrorAction SilentlyContinue).CommandLine -like "*start_server.py*"
-        } | Stop-Process -Force -ErrorAction SilentlyContinue
-
+        Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Process cmd -ArgumentList "/c cd /d `"$PROJECT_DIR`" && title FireServer && `"$VENV_PYTHON`" start_server.py >> server_output.log 2>&1" -WindowStyle Minimized
-        Log "Server start command issued. Waiting 12s..."
-        Start-Sleep -Seconds 12
+        Log "Server start command issued. Waiting 15s..."
+        Start-Sleep -Seconds 15
     } else {
         Log "Server OK on :8000 (PID $($tcpPort.OwningProcess))"
     }
 
-    # ── 2. Ensure zrok tunnel is alive ────────────────────────────────────────
+    # 2. Ensure zrok tunnel is alive
     $zrokProc = Get-Process zrok -ErrorAction SilentlyContinue
     if (-not $zrokProc) {
         Log "Zrok not running. Cleaning ghost shares and restarting tunnel..."
 
-        # Use JSON output for reliable parsing
         try {
             $overviewJson = & $ZROK_EXE overview --json 2>$null
             $overview = $overviewJson | ConvertFrom-Json
-
-            # Find all shares named jordan-fire and delete them
             foreach ($env in $overview.environments) {
                 if ($env.shares) {
                     foreach ($share in $env.shares) {
@@ -55,20 +48,8 @@ while ($true) {
                     }
                 }
             }
-
-            # Also clean orphaned name mappings  
-            foreach ($name in $overview.names) {
-                if ($name.name -eq "jordan-fire" -and -not $name.shareToken) {
-                    Log "Deleting orphaned name: jordan-fire"
-                    & $ZROK_EXE delete name jordan-fire
-                    Start-Sleep -Seconds 2
-                    # Re-create the reserved name
-                    & $ZROK_EXE create name jordan-fire
-                    Start-Sleep -Seconds 2
-                }
-            }
         } catch {
-            Log "Warning: Could not parse zrok overview JSON: $_"
+            Log "Warning: Could not parse zrok overview: $_"
         }
 
         Log "Starting new zrok tunnel..."
@@ -79,7 +60,7 @@ while ($true) {
         Log "Zrok OK (PID $($zrokProc.Id))"
     }
 
-    # ── 3. Optional: verify the tunnel actually works ─────────────────────────
+    # 3. Health check
     try {
         $resp = Invoke-WebRequest -Uri "http://127.0.0.1:8000/login" -Method Get -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
         Log "Health check OK: HTTP $($resp.StatusCode)"
