@@ -236,6 +236,10 @@
                         </button>
                     </div>
                     <div class="card-body">
+                        <div class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-2 rounded" style="background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.3);">
+                            <i class="bi bi-info-circle text-info"></i>
+                            <span class="text-muted small"><strong class="text-white">Proposed Future Integration</strong> — The following is pseudocode illustrating the intended automation pipeline. It is not a live implementation.</span>
+                        </div>
                         <div class="code-block mb-4">
 <span class="code-keyword">def</span> <span class="code-function">fire_risk_alert_pipeline</span>(region: <span class="code-keyword">str</span>):
     forecast = open_meteo_api.get_7day_forecast(region)

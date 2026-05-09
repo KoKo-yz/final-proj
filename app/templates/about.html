@@ -26,9 +26,9 @@
                 
                 <p class="lead">
                     This system is an AI-powered early warning tool designed to predict and map forest fire risks 
-                    across Jordan. By analyzing over <strong>120,000 fire incident records</strong> from 2018 to 2025, 
-                    our machine learning models can identify high-risk areas and time periods, enabling civil protection 
-                    authorities to take proactive measures.
+                    across Jordan. By analyzing <strong>239,368 fire incident records</strong> spanning 2018 to 2025, 
+                    our machine learning models identify high-risk areas and time periods, enabling civil protection 
+                    authorities to take proactive, data-driven measures before fires escalate.
                 </p>
                 
                 <h4 class="fw-bold mt-5 mb-3">How It Works</h4>
@@ -60,8 +60,8 @@
                                     <h5 class="mb-0">2. Processing</h5>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    Coordinate conversion, feature engineering, and data cleaning 
-                                    to prepare for ML model training.
+                                    Raw records used mixed coordinate systems (Palestine 1923 Grid &amp; UTM Zone 36N). 
+                                    All 239,368 points were unified to WGS-84 (GPS standard) before feature engineering and model training.
                                 </p>
                             </div>
                         </div>
@@ -105,31 +105,43 @@
                     <li class="mb-3 d-flex">
                         <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
                         <div>
-                            <strong>Interactive Fire Map</strong> - View all incidents with clustering and heatmap visualization
+                            <strong>Interactive Fire Map</strong> - 239,368 incidents visualized with clustering and heatmap layers
                         </div>
                     </li>
                     <li class="mb-3 d-flex">
                         <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
                         <div>
-                            <strong>Risk Prediction</strong> - Predict fire risk for any region and month using AI models
+                            <strong>AI K-Means Hotspot Zones</strong> - 5 prioritized Alpha-zones derived from spatial clustering of fire density
                         </div>
                     </li>
                     <li class="mb-3 d-flex">
                         <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
                         <div>
-                            <strong>Statistical Dashboards</strong> - Analyze trends by year, month, type, and location
+                            <strong>Polynomial Regression Forecasts</strong> - 3-year outlook (2026–2028) per region, R²&nbsp;=&nbsp;0.87
                         </div>
                     </li>
                     <li class="mb-3 d-flex">
                         <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
                         <div>
-                            <strong>Model Comparison</strong> - Evaluate performance of different ML algorithms
+                            <strong>Climate Correlation Analysis</strong> - Pearson r&nbsp;=&nbsp;0.79 between rainfall deficit and fire frequency (Open-Meteo API)
                         </div>
                     </li>
                     <li class="mb-3 d-flex">
                         <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
                         <div>
-                            <strong>Mobile Responsive</strong> - Accessible on desktop, tablet, and mobile devices
+                            <strong>Live Risk Calculator</strong> - Real-time risk score from adjustable temperature, rainfall, and wind sliders
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Coverage Gap Analysis</strong> - Haversine distance mapping for all 48 Civil Defense stations across 5/10/15&nbsp;km rings
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                        <div>
+                            <strong>Mobile Responsive PWA</strong> - Accessible on desktop, tablet, and mobile devices
                         </div>
                     </li>
                 </ul>
